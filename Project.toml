@@ -3,6 +3,10 @@ uuid = "8bec5e4a-d4a8-45a2-8627-d33aaa05d697"
 authors = ["Florian Forsthuber <florian.forsthuber@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+StatFiles = "1463e38c-9381-5320-bcd4-4134955f093a"
+
 [compat]
 julia = "1.6"
 
