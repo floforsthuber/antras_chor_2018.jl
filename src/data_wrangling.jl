@@ -17,7 +17,7 @@ sort!(df, names(df[:, Not([:col_country, :value])])) # now sorted alphabetically
 
 # -------------- data wrangling -----------------------------------------------------------------------------------------------------------------------
 
-ctrys = unique(df.col_country) # all country iso3 codes
+ctrys = sort(unique(df.col_country)) # all country iso3 codes
 n_ctrys = length(ctrys) # 40 + ROW = 41 countries in WIOD Release 2013 
 goods_sectors = 1:16 # numbers associated with goods sectors
 service_sectors = 17:35 # numbers associated with service sectors
@@ -58,14 +58,15 @@ function obtain_matrices(df::DataFrame, year::Int64)
     FD = Matrix(convert.(Float64, FD_wide[:, Not([:row_country, :row_sector])])) # N*S×N, matrix object to perform matrix algebra
 
 
-    # ---------------- Inventory demand matrix, N*S×1
+    # ---------------- Inventory demand matrix, N*S×N
     IV_long = subset(df1, :row_sector => ByRow(x -> x in 1:35), :col_sector => ByRow(x -> x == 42)) # subsetting for correct sectors
     
     sort!(IV_long, [:row_country, :row_sector, :col_country]) # sort according to country and sector
-    gdf = groupby(IV_long, [:row_country, :row_sector]) # sum the four sources of final demand into one
+    gdf = groupby(IV_long, [:row_country, :row_sector, :col_country]) 
     IV_long = combine(gdf, :value => sum => :total)
+    IV_wide = unstack(IV_long, [:row_country, :row_sector], :col_country, :total) # transform into wide format
 
-    IV = IV_long.total # N*S×1, matrix object to perform matrix algebra
+    IV = Matrix(convert.(Float64, IV_wide[:, Not([:row_country, :row_sector])])) # N*S×N, matrix object to perform matrix algebra
   
     
     # ---------------- Gross output, N*S×N
@@ -99,13 +100,18 @@ function obtain_matrices(df::DataFrame, year::Int64)
     # ---------------- Net inventory correction (page 12, also see Antras et al. (2012))
     # basically adjust intermediate and final demand matrix by inventory fraction
 
-    iv_correction = GO ./ (GO .- IV)
+    IV_all = [sum(IV[i, :]) for i in 1:n_ctrys*n_sectors] # spread inventory at country level across ID/FD (could do more refined and match countries)
+    iv_correction = GO ./ (GO .- IV_all)
 
     ID_corrected = [ID[i, j] * iv_correction[i] for i in 1:n_ctrys*n_sectors, j in 1:n_ctrys*n_sectors]
     FD_corrected = [FD[i, j] * iv_correction[i] for i in 1:n_ctrys*n_sectors, j in 1:n_ctrys]
 
-    return ID_corrected, FD_corrected, GO, VA, other
+    replace!(ID_corrected, NaN => 0.0) # sometimes zeros are interpreted as NaN (particular for sector 35, private households with employed persons)
+    replace!(FD_corrected, NaN => 0.0)
+
+    return ID, FD, GO, VA, IV, other
 
 end
 
-IF, FD, GO, VA = obtain_matrices(df, 2011)
+#ID, FD, GO, VA, IV, other = obtain_matrices(df, 2011)
+
