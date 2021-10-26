@@ -6,7 +6,7 @@ using DataFrames, StatFiles
 
 df = DataFrame(load("raw/wiot_full.dta")) # entire 2013 version of WIOD (1995-2011) in long format
 df2 = copy(df) # make a copy in case code does not work so we dont need to load entire dataset every time!
-df = df[end-3_000_000:end, :] # work with smaller df for now
+#df = df[end-3_000_000:end, :] # work with smaller df for now
 
 rename!(df, :row_item => :row_sector, :col_item => :col_sector)
 transform!(df, [:row_country, :col_country] .=> ByRow(string) .=> [:row_country, :col_country], renamecols=false) # convert columns to strings
@@ -17,19 +17,23 @@ sort!(df, names(df[:, Not([:col_country, :value])])) # now sorted alphabetically
 
 # -------------- data wrangling -----------------------------------------------------------------------------------------------------------------------
 
+years = 1995:2011
 ctrys = sort(unique(df.col_country)) # all country iso3 codes
-n_ctrys = length(ctrys) # 40 + ROW = 41 countries in WIOD Release 2013 
 goods_sectors = 1:16 # numbers associated with goods sectors
 service_sectors = 17:35 # numbers associated with service sectors
+
+n_ctrys = length(ctrys) # 40 + ROW = 41 countries in WIOD Release 2013 
 n_sectors = length([goods_sectors; service_sectors]) # 35 different sectors in WIOD Release 2013
 
 # The function "make matrix" accepts is designed to use the input data from WIOD in stata format (above), it returns the specified year's
-# 1. ID_corrected ... "net inventory corrected" intermediate demand, N*S×N*S matrix
-# 2. FD_corrected ... "net inventory corrected" final demand, N*S×N matrix
-# 3. GO ... total final output, N*S×1 vector
-# 4. other ... total other expenses, N*S×1 vector
+# 1. ID ... intermediate demand, N*S×N*S
+# 2. FD ... final demand, N*S×N
+# 3. GO ... total final output, N*S×1
+# 4. VA ... value added, N*S×1
+# 5. IV ... net inventory changes (notice negative values, i.e. reduction in inventories), N*S×N
+# 6. other ... total other expenses, N*S×1
 # Notes: use "sort!" exessively in order to make sure the matrices are sorted accordingly to country-sector pairs
-# Notes: also computes original ID and FD, IV - if needed we can extract them from the function too
+# Notes: ID/FD_corrected which are corrected at the country level (should correct at country-industry level instead)
 
 function obtain_matrices(df::DataFrame, year::Int64)
 
@@ -69,7 +73,7 @@ function obtain_matrices(df::DataFrame, year::Int64)
     IV = Matrix(convert.(Float64, IV_wide[:, Not([:row_country, :row_sector])])) # N*S×N, matrix object to perform matrix algebra
   
     
-    # ---------------- Gross output, N*S×N
+    # ---------------- Gross output, N*S×1
     GO_long = subset(df, :year => ByRow(x -> x == year), :row_country => ByRow(x -> x == "GO"), :col_country => ByRow(x -> x in ctrys), 
     :col_sector => ByRow(x -> x in 1:35)) # subsetting for GO (gross output), countries and sectors (notice using df not df1 anymore)
     
@@ -77,7 +81,7 @@ function obtain_matrices(df::DataFrame, year::Int64)
     GO = GO_long.value
 
 
-    # ---------------- Value added matrix, N*S×N
+    # ---------------- Value added matrix, N*S×1
     VA_long = subset(df, :year => ByRow(x -> x == year), :row_country => ByRow(x -> x == "VA"), :col_country => ByRow(x -> x in ctrys), 
     :col_sector => ByRow(x -> x in 1:35)) # subsetting for VA, countries and sectors (notice using df not df1 anymore)
 
@@ -85,7 +89,7 @@ function obtain_matrices(df::DataFrame, year::Int64)
     VA = VA_long.value
 
 
-    # ---------------- Other records matrix, N*S×N
+    # ---------------- Other records matrix, N*S×1
     other = ["CIF", "ITM", "PUA", "PUF", "TXP"] # subsetting for [CIF, ITM, PUA, PUF, TXP], countries and sectors
     other_long = subset(df, :year => ByRow(x -> x == year), :row_country => ByRow(x -> x in other), :col_country => ByRow(x -> x in ctrys), 
     :col_sector => ByRow(x -> x in 1:35)) # (notice using df not df1 anymore)

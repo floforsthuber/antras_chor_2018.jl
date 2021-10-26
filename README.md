@@ -7,7 +7,15 @@ The original paper *On the Measurement of Upstreamness and Downstreamness in Glo
 be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_29dec2017_withtables.pdf), with slides for the presentation of the paper are available [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_slides_dec17.pdf).
 
 The authors' files for replication can be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_replication.zip).
-My own files are available via my Google Drive. 
+My own files are available via Google Drive. 
+
+# Results
+
+Corresponds to figure 2 on page 13:
+https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure1.png
+<br/>
+
+
 
 # Final notes
 
