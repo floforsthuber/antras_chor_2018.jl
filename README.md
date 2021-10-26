@@ -12,7 +12,7 @@ My own files are available via Google Drive.
 # Results
 
 Corresponds to figure 2 on page 13:
-https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure1.png
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure1.png)
 <br/>
 
 
