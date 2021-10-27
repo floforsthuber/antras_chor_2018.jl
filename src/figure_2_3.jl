@@ -1,12 +1,17 @@
-# Script for replicating figure 1
+# Script for replicating figure 2 and 3
 
-using StatsBase, Statistics, LinearAlgebra, StatsPlots
+using StatsBase, Statistics, LinearAlgebra, StatsPlots, XLSX
 
 # -------------- Previous scripts -----------------------------------------------------------------------------------------------------------------------
 
-include("src/data_wrangling.jl")
+include("src/data_wrangling.jl") # formats the raw input data obtained from WIOD
 
 # -------------- Sectoral aggregation for country level I/O-Table ---------------------------------------------------------------------------------------
+
+# the function "country_level_position" uses the output from the function "obtain_matrices"
+# it prepares the data to replicate figure 2 and 3 by aggregating from a country-sector level to a country level I/O-Table
+# outputs:
+# t_country_wide ... yearly statistics of final demand share, value added share and measures of U and D at country level
 
 function country_level_position(df::DataFrame, year::Int64)
 
@@ -58,17 +63,24 @@ function country_level_position(df::DataFrame, year::Int64)
 end
 
 # gather data for all years in a single data frame
-t_fig_1_2 = DataFrame(year=Int[], country=String[], FD_GO=Float64[], VA_GO=Float64[], U=Float64[], D=Float64[])
+t_fig_2_3 = DataFrame(year=Int[], country=String[], FD_GO=Float64[], VA_GO=Float64[], U=Float64[], D=Float64[])
 
 for i in years
-    append!(t_fig_1_2, country_level_position(df, i))
+    append!(t_fig_2_3, country_level_position(df, i))
 end
 
-# -------------- Figure 1 --------------------------------------------------------------------------------------------------------------------------------
+XLSX.writetable("clean/t_fig_2_3.xlsx", t_fig_2_3, overwrite=true) # export table to folder as input for plotting figure 2 and 3
 
-t_fig_1_2_long = stack(t_fig_1_2, Not([:year, :country]))
+# -------------- Figure 2 --------------------------------------------------------------------------------------------------------------------------------
 
-function plot_fig1(df::DataFrame, country::Vector, series::Vector) # input vectors in so we can plot multiple countries for comparison
+t_fig_2_3 = DataFrame(XLSX.readtable("clean/t_fig_2_3.xlsx", "Sheet1")...) # load directly from file
+transform!(t_fig_2_3, :country .=> ByRow(string) .=> :country, renamecols=false) # change type to String
+transform!(t_fig_2_3, :year .=> ByRow(Int) .=> :year, renamecols=false) # change type to Int64
+transform!(t_fig_2_3, [:FD_GO, :VA_GO, :U, :D] .=> ByRow(Float64) .=> [:FD_GO, :VA_GO, :U, :D], renamecols=false) # change type to Float64
+
+t_fig_2_3_long = stack(t_fig_2_3, Not([:year, :country])) # long format for plotting
+
+function plot_fig2(df::DataFrame, country::Vector, series::Vector) # use vectors as input so we can plot multiple countries for comparison
     
     df = subset(df, :country => ByRow(x -> x in country), :variable => ByRow(x -> x in series))
 
@@ -78,34 +90,42 @@ function plot_fig1(df::DataFrame, country::Vector, series::Vector) # input vecto
     return p
 end
 
-l = @layout [a ; b] # below each other
-p1 = plot_fig1(t_fig_1_2_long, ["world"], ["FD_GO", "VA_GO"]) # add both measures (should be the same in theory) - slight difference (should adjust for "others"?)
-p2 = plot_fig1(t_fig_1_2_long, ["world"], ["U", "D"]) # coincide very well
-p_fig1 = plot(p1, p2, layout = l, plot_title="GVC Positioning over Time")
-savefig(p_fig1, "images/figure1.png") # export image to folder
+l = @layout [a ; b] # 2×1 layout
+p1 = plot_fig2(t_fig_2_3_long, ["world"], ["FD_GO", "VA_GO"]) # add both measures (should be the same in theory) - slight difference (should adjust for "others"?)
+p2 = plot_fig2(t_fig_2_3_long, ["world"], ["U", "D"]) # coincide very well
+title = "Figure 2: GVC Positioning over Time (World Average)"
+p_fig2 = plot(p1, p2, layout=l, plot_title=title, plot_titlefontsize=10)
+savefig(p_fig2, "images/figure2.png") # export image to folder
 
-# -------------- Figure 2 ------------------------------------------------------------------------------------------------------------------------------
+# -------------- Figure 3 ------------------------------------------------------------------------------------------------------------------------------
 
 # computing percentiles per country-series group
-t_fig2 = subset(t_fig_1_2_long, :country => ByRow(x -> x != "world")) # take out world to calculate percentiles
-gdf = groupby(t_fig2, [:year, :variable])
+t_fig3 = subset(t_fig_2_3_long, :country => ByRow(x -> x != "world")) # take out world to calculate percentiles
+gdf = groupby(t_fig3, [:year, :variable])
 begin
-    t_fig2 = combine(gdf,
-     :value => (x -> percentile(x, 0.25)) => :quantile_25,
-     :value => (x -> percentile(x, 0.50)) => :quantile_50,
-     :value => (x -> percentile(x, 0.75)) => :quantile_75) 
+    t_fig3 = combine(gdf,
+     :value => (x -> percentile(x, 25)) => :quantile_25,
+     :value => (x -> percentile(x, 50)) => :quantile_50,
+     :value => (x -> percentile(x, 75)) => :quantile_75) 
 end
-rename!(t_fig2, :variable => :series) # name conflict in formatting
-df_fig2_long = stack(t_fig2, Not([:year, :series]))
+rename!(t_fig3, :variable => :series) # name conflict in formatting
+df_fig3_long = stack(t_fig3, Not([:year, :series]))
 
-function plot_fig2(df::DataFrame, series::String) # input vectors in so we can plot multiple countries for comparison
+function plot_fig3(df::DataFrame, series::String) # input vectors in so we can plot multiple countries for comparison
     
     df = subset(df, :series => ByRow(x -> x == series))
 
-    p = @df df plot(:year, :value, group=:variable, lw=2, legend=:topright, 
-        ylims=(round(minimum(:value), digits=1)-0.15,round(maximum(:value), digits=1)+0.15))
+    p = @df df plot(:year, :value, group=:variable, lw=2, legend=:none,
+    ylims=(round(minimum(:value)-0.05, digits=1),round(maximum(:value)+0.05, digits=1)))
 
     return p
 end
 
-plot_fig2(df_fig2_long, "U")
+l = @layout [a b ; c d] # 2×2 layout
+p1 = plot_fig3(df_fig3_long, "FD_GO")
+p2 = plot_fig3(df_fig3_long, "VA_GO")
+p3 = plot_fig3(df_fig3_long, "U")
+p4 = plot_fig3(df_fig3_long, "D")
+title = "Figure 3: GVC Positioning over Time (25th, 50th, 75th country percentiles)"
+p_fig3 = plot(p1, p2, p3, p4, layout=l, plot_title=title, plot_titlefontsize=10)
+savefig(p_fig3, "images/figure3.png") # export image to folder

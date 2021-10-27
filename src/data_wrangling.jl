@@ -4,7 +4,8 @@ using DataFrames, StatFiles
 
 # -------------- loading data -----------------------------------------------------------------------------------------------------------------------
 
-df = DataFrame(load("raw/wiot_full.dta")) # entire 2013 version of WIOD (1995-2011) in long format
+df = DataFrame(load("raw/wiot_full.dta")) # entire 2013 version of WIOD (1995-2011) in long format (Stata .dta file)
+# can be obtained from http://www.wiod.org/database/wiots13 under "WIOT tables in STATA format"
 df2 = copy(df) # make a copy in case code does not work so we dont need to load entire dataset every time!
 #df = df[end-3_000_000:end, :] # work with smaller df for now
 
