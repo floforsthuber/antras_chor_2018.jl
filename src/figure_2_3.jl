@@ -130,3 +130,85 @@ p4 = plot_fig3(df_fig3_long, "D")
 title = "Figure 3: GVC Positioning over Time (25th, 50th, 75th country percentiles)"
 p_fig3 = plot(p1, p2, p3, p4, layout=l, plot_title=title, plot_titlefontsize=10)
 savefig(p_fig3, "images/figure3.png") # export image to folder
+
+# -------------- Table 1 ------------------------------------------------------------------------------------------------------------------------------
+
+t_tab1 = subset(t_fig_2_3_long, :country => ByRow(x -> x != "world")) # take out world 
+gdf = groupby(t_tab1, [:year, :variable])
+#t_tab1 = combine(gdf, :value => (x -> ordinalrank(x; lt=isless)) => :rank) # ordinal rank per year and series
+t_tab1 = transform(gdf, :value => (x -> ordinalrank(x; lt=isless)) => :rank) # ordinal rank per year and series
+# notice the difference between combine and transform! => transform returns all other columns as well (very useful!)
+sort!(t_tab1, [:year, :variable, :rank]) # sorting is still respecting groups
+
+
+# ------------ Spearman coefficient of correlation (page 15)
+# need to sort correctly, i.e. sort according to countries!
+# function produced a table computing the spearman correlation coefficient between two specified years
+function spearman_coeff(df::DataFrame, year_base::Int64, year_comp::Int64)
+    df = sort(df, :country)
+    spearman_coefficients = DataFrame(year_base=Int[], year_comp=Int[], measure=String[], value=Float64[])
+
+    for series in unique(df.variable)
+        base = subset(df, :year => ByRow(x -> x == year_base), :variable => ByRow(x -> x == series))
+        comp = subset(df, :year => ByRow(x -> x == year_comp), :variable => ByRow(x -> x == series))
+
+        spearman_row = [year_base year_comp series round(StatsBase.corspearman(base.rank, comp.rank), digits=3)]
+
+        push!(spearman_coefficients, spearman_row)
+    end
+    
+    return spearman_coefficients
+end
+
+spearman_coeff(t_tab1, 1995, 2011) # coincide well with paper
+
+open("images/spearman_coefficients.txt", "w") do f
+    pretty_table(f,spearman_coeff(t_tab1, 1995, 2011); backend = Val(:html))
+end
+
+
+# ------------ Table entries: returns top5/bottom5 
+function table_1(df::DataFrame, year::Int64, series::String, selection::String)
+    df = subset(df, :year => ByRow(x -> x == year), :variable => ByRow(x -> x == series))
+    view = selection == "top5" ? first(df, 5) : last(df, 5)
+    return view
+end
+
+# to produce output in one go
+for i in [1995, 2011]
+    for j in unique(t_tab1.variable)
+        for k in ["top5", "bottom5"]
+            print(table_1(t_tab1, i, j, k))
+        end
+    end
+end
+
+
+# final demand share of output
+table_1(t_tab1, 1995, "FD_GO", "top5")
+table_1(t_tab1, 1995, "FD_GO", "bottom5")
+table_1(t_tab1, 2011, "FD_GO", "top5")
+table_1(t_tab1, 2011, "FD_GO", "bottom5")
+
+# value added share of output
+table_1(t_tab1, 1995, "VA_GO", "top5")
+table_1(t_tab1, 1995, "VA_GO", "bottom5")
+table_1(t_tab1, 2011, "VA_GO", "top5")
+table_1(t_tab1, 2011, "VA_GO", "bottom5")
+
+# upstreamness
+table_1(t_tab1, 1995, "U", "top5")
+table_1(t_tab1, 1995, "U", "bottom5")
+table_1(t_tab1, 2011, "VA_GO", "top5")
+table_1(t_tab1, 2011, "VA_GO", "bottom5")
+
+# downstreamness
+table_1(t_tab1, 1995, "U", "top5")
+table_1(t_tab1, 1995, "U", "bottom5")
+table_1(t_tab1, 2011, "VA_GO", "top5")
+table_1(t_tab1, 2011, "VA_GO", "bottom5")
+
+
+
+
+

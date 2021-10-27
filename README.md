@@ -22,6 +22,11 @@ My own files are available via Google Drive.
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure3.png)
 <br/>
 
+***Spearman coefficients on page 14:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/spearman_coefficients.txt)
+<br/>
+
 # Final notes
 
 All mistakes are my own.
