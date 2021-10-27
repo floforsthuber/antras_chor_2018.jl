@@ -160,10 +160,11 @@ function spearman_coeff(df::DataFrame, year_base::Int64, year_comp::Int64)
     return spearman_coefficients
 end
 
-spearman_coeff(t_tab1, 1995, 2011) # coincide well with paper
+spear_coeff = spearman_coeff(t_tab1, 1995, 2011) # coincide well with paper
 
+# export table to include in README.md
 open("images/spearman_coefficients.txt", "w") do f
-    pretty_table(f,spearman_coeff(t_tab1, 1995, 2011); backend = Val(:html))
+    pretty_table(f,spear_coeff; backend = Val(:html), nosubheader=true, standalone=false) # only prints html code for table itself
 end
 
 
