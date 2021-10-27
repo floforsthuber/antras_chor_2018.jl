@@ -12,11 +12,13 @@ My own files are available via Google Drive.
 
 # Results
 
-Corresponds to figure 2 on page 13:
+***Corresponds to figure 2 on page 13:***
+<br/>
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure2.png)
 <br/>
 
-Corresponds to figure 3 on page 14:
+***Corresponds to figure 3 on page 14:***
+<br/>
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure3.png)
 <br/>
 

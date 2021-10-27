@@ -116,7 +116,8 @@ function plot_fig3(df::DataFrame, series::String) # input vectors in so we can p
     df = subset(df, :series => ByRow(x -> x == series))
 
     p = @df df plot(:year, :value, group=:variable, lw=2, legend=:none,
-    ylims=(round(minimum(:value)-0.05, digits=1),round(maximum(:value)+0.05, digits=1)))
+    ylims=(round(minimum(:value)-0.05, digits=1),round(maximum(:value)+0.05, digits=1)), 
+    ylabel="$(series) over time")
 
     return p
 end
