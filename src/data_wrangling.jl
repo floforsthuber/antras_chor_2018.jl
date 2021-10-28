@@ -101,19 +101,7 @@ function obtain_matrices(df::DataFrame, year::Int64)
     sort!(other_long, [:col_country, :col_sector])
     other = other_long.total
 
-
-    # ---------------- Net inventory correction (page 12, also see Antras et al. (2012))
-    # basically adjust intermediate and final demand matrix by inventory fraction
-
-    IV_all = [sum(IV[i, :]) for i in 1:n_ctrys*n_sectors] # spread inventory at country level across ID/FD (could do more refined and match countries)
-    iv_correction = GO ./ (GO .- IV_all)
-
-    ID_corrected = [ID[i, j] * iv_correction[i] for i in 1:n_ctrys*n_sectors, j in 1:n_ctrys*n_sectors]
-    FD_corrected = [FD[i, j] * iv_correction[i] for i in 1:n_ctrys*n_sectors, j in 1:n_ctrys]
-
-    replace!(ID_corrected, NaN => 0.0) # sometimes zeros are interpreted as NaN (particular for sector 35, private households with employed persons)
-    replace!(FD_corrected, NaN => 0.0)
-
+    
     return ID, FD, GO, VA, IV, other
 
 end

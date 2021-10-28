@@ -1,6 +1,6 @@
-# Script for replicating figure 2 and 3
+# Script to replicate figure 2 and 3
 
-using StatsBase, Statistics, LinearAlgebra, StatsPlots, XLSX
+using StatsBase, Statistics, LinearAlgebra, StatsPlots, XLSX, PrettyTables
 
 # -------------- Previous scripts -----------------------------------------------------------------------------------------------------------------------
 
@@ -8,12 +8,12 @@ include("src/data_wrangling.jl") # formats the raw input data obtained from WIOD
 
 # -------------- Sectoral aggregation for country level I/O-Table ---------------------------------------------------------------------------------------
 
-# the function "country_level_position" uses the output from the function "obtain_matrices"
+# the function "country_level_GVC_indicators" uses the output from the function "obtain_matrices"
 # it prepares the data to replicate figure 2 and 3 by aggregating from a country-sector level to a country level I/O-Table
 # outputs:
 # t_country_wide ... yearly statistics of final demand share, value added share and measures of U and D at country level
 
-function country_level_position(df::DataFrame, year::Int64)
+function country_level_GVC_indicators(df::DataFrame, year::Int64)
 
     ID, FD, GO, VA, IV, other = obtain_matrices(df, year) # N*S×N*S, N*S×N, N*S×1, N*S×1, N*S×N, N*S×1
 
@@ -32,7 +32,7 @@ function country_level_position(df::DataFrame, year::Int64)
 
     FD_ctry = [sum(FD_ctry[i, :]) for i in 1:n_ctrys] # N×1, sum over destination countries
     
-    # input/output share matrices
+    # input/output coefficient matrices
     A = [ID_ctry[i, j] / GO_ctry[j] for i in 1:n_ctrys, j in 1:n_ctrys] # N×N, iterate output over destination country
     B = [ID_ctry[i, j] / GO_ctry[i] for i in 1:n_ctrys, j in 1:n_ctrys] # N×N, iterate output over reporting country
 
@@ -66,7 +66,7 @@ end
 t_fig_2_3 = DataFrame(year=Int[], country=String[], FD_GO=Float64[], VA_GO=Float64[], U=Float64[], D=Float64[])
 
 for i in years
-    append!(t_fig_2_3, country_level_position(df, i))
+    append!(t_fig_2_3, country_level_GVC_indicators(df, i))
 end
 
 XLSX.writetable("clean/t_fig_2_3.xlsx", t_fig_2_3, overwrite=true) # export table to folder as input for plotting figure 2 and 3
