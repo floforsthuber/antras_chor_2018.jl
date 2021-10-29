@@ -59,7 +59,7 @@ XLSX.writetable("clean/t_tab2.xlsx", t_tab2, overwrite=true) # export table
 
 # -------------- Table 2 --------------------------------------------------------------------------------------------------------------------------------
 
-# inport data from local drive
+# import data from local drive
 t_tab2 = DataFrame(XLSX.readtable("clean/t_tab2.xlsx", "Sheet1")...)
 transform!(t_tab2, :country .=> ByRow(string) .=> :country, renamecols=false) # change type to String
 transform!(t_tab2, [:year, :sector] .=> ByRow(Int) .=> [:year, :sector], renamecols=false) # change type to Int64
@@ -91,11 +91,17 @@ rr_D_2 = FixedEffectModels.reg(data_reg, @formula(D ~ year + fe(country_sector))
 # use package: RegressionTables
 
 RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1, rr_U_2, rr_D_1, rr_D_2;
- renderSettings = asciiOutput(), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # output on the console
+ renderSettings = asciiOutput("images/table2.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # output on the console
 
 RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1, rr_U_2, rr_D_1, rr_D_2;
  renderSettings = htmlOutput("images/table2.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # export as html
 
 # regressions coincide very well, possible source of difference is the additional 300 observations of Antras and Chor (2018)
 # have for VA, U, D (i.e. must have fewer NaN, but how?)
-# Notice: RegressionTables reports only 3 decimal places (as opposed to 4 in the paper) => possibly need to manually edit
+
+
+
+
+
+
+
