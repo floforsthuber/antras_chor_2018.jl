@@ -91,10 +91,10 @@ rr_D_2 = FixedEffectModels.reg(data_reg, @formula(D ~ year + fe(country_sector))
 # use package: RegressionTables
 
 RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1, rr_U_2, rr_D_1, rr_D_2;
- renderSettings = asciiOutput("images/table2.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # output on the console
+ renderSettings = asciiOutput(), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # output on the console
 
 RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1, rr_U_2, rr_D_1, rr_D_2;
- renderSettings = htmlOutput("images/table2.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # export as html
+ renderSettings = htmlOutput("images/table2_html.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # export as html
 
 # regressions coincide very well, possible source of difference is the additional 300 observations of Antras and Chor (2018)
 # have for VA, U, D (i.e. must have fewer NaN, but how?)
