@@ -60,10 +60,20 @@ XLSX.writetable("clean/t_tab2.xlsx", t_tab2, overwrite=true) # export table
 # -------------- Table 2 --------------------------------------------------------------------------------------------------------------------------------
 
 # import data from local drive
-t_tab2 = DataFrame(XLSX.readtable("clean/t_tab2.xlsx", "Sheet1")...)
+t_tab2 = DataFrame(XLSX.readtable("clean/t_tab2.xlsx", "Sheet1")...) # still a lot of NaN
 transform!(t_tab2, :country .=> ByRow(string) .=> :country, renamecols=false) # change type to String
 transform!(t_tab2, [:year, :sector] .=> ByRow(Int) .=> [:year, :sector], renamecols=false) # change type to Int64
 transform!(t_tab2, [:FD_GO, :VA_GO, :U, :D] .=> ByRow(Float64) .=> [:FD_GO, :VA_GO, :U, :D], renamecols=false) # change type to Float64
+
+# missing: create table A.1 with summary statistics of country-industry GVC measures (how to treat NaN?)
+# treat NaN = 0
+t_tab2_long = stack(t_tab2, Not([:year, :country, :sector]))
+transform!(t_tab2_long, :value => ByRow(x -> ifelse(isnan(x), 0.0, x)) => :value, renamecols=false) # set NaN = 0.0
+gdf = groupby(t_tab2_long, :variable)
+
+t_tabA1 = combine(gdf, :value => (x -> percentile(x, 10)) => :quantile_10, :value => (x -> percentile(x, 90)) => :quantile_90, :value => mean => :mean)
+
+#:value => median => :median, :value => nrow => :N, :value => std => :std) 
 
 # use package: FixedEffectModels
 
@@ -72,7 +82,9 @@ transform!(t_tab2, [:FD_GO, :VA_GO, :U, :D] .=> ByRow(Float64) .=> [:FD_GO, :VA_
 # FixedEffectModels.reg(data_reg, term(:VA_GO) ~ term(:year) + fe(:country_sector), Vcov.cluster(:year, :country_sector))
 # FixedEffectModels.reg(data_reg, term("VA_GO") ~ term("year") + fe(term("country_sector")), Vcov.cluster(:year, :country_sector))
 
-data_reg = subset(t_tab2, :VA_GO => ByRow(x -> !isnan(x))) # filter out NaN
+#data_reg = subset(t_tab2, :VA_GO => ByRow(x -> !isnan(x))) # filter out rows with NaN
+data_reg = transform(t_tab2, [:FD_GO, :VA_GO, :U, :D] .=> ByRow(x -> ifelse(isnan(x), 0.0, x)) .=> [:FD_GO, :VA_GO, :U, :D], renamecols=false) # set NaN = 0.0
+# setting NaN = 0 considerably improves match with table 2
 data_reg[:, :country_sector] .= data_reg[:, :country] .* "_" .* string.(data_reg[:, :sector]) # considerably improves R² compared to use columns individually
 
 rr_FD_GO_1 = FixedEffectModels.reg(data_reg, @formula(FD_GO ~ year + fe(country_sector)), Vcov.cluster(:country_sector), save=true)
@@ -90,14 +102,16 @@ rr_D_2 = FixedEffectModels.reg(data_reg, @formula(D ~ year + fe(country_sector))
 
 # use package: RegressionTables
 
+# create .png out of ascii output to include in README.md as unformatted html output does not look good
 RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1, rr_U_2, rr_D_1, rr_D_2;
  renderSettings = asciiOutput(), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # output on the console
 
+# html output
 RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1, rr_U_2, rr_D_1, rr_D_2;
- renderSettings = htmlOutput("images/table2_html.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # export as html
+ renderSettings = htmlOutput("images/table2_html.txt"), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f")
 
 # regressions coincide very well, possible source of difference is the additional 300 observations of Antras and Chor (2018)
-# have for VA, U, D (i.e. must have fewer NaN, but how?)
+# have for VA, U, D (i.e. must have fewer NaN, but how?) => set NaN = 0
 
 
 
