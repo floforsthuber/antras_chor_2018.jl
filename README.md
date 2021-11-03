@@ -225,7 +225,7 @@ My own files are available via Google Drive.
 
 ***Corresponds to table 6 on page 19:***
 <br/>
-![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure6.png)
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table3.png)
 <br/>
 
 
