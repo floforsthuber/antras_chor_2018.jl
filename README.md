@@ -4,11 +4,10 @@
 [![Coverage](https://codecov.io/gh/forsthuber92/antras_chor_2018.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/forsthuber92/antras_chor_2018.jl)
 
 The original paper *On the Measurement of Upstreamness and Downstreamness in Global Value Chains* was written by *Pol Antras and Davin Chor (2018)* and can 
-be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_29dec2017_withtables.pdf), with slides for the presentation of the paper are available [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_slides_dec17.pdf).
+be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_29dec2017_withtables.pdf), with slides for the presentation of the paper [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_slides_dec17.pdf) and the authors' files for replication [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_replication.zip).<br/>
 
-The authors' files for replication can be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_replication.zip).<br/>
 The replication uses the STATA format available from WIOD [here](http://www.wiod.org/database/wiots13).<br/>
-My own files are available via Google Drive. 
+My own files are available via Google Drive.
 
 # Results
 
@@ -220,6 +219,11 @@ My own files are available via Google Drive.
 <br/>
 
 ***Corresponds to figure 6 on page 19:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure6.png)
+<br/>
+
+***Corresponds to table 6 on page 19:***
 <br/>
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure6.png)
 <br/>
