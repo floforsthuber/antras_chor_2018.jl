@@ -28,7 +28,7 @@ p3 = plot_fig4(t_fig_4, :D, :U, 1995)
 p4 = plot_fig4(t_fig_4, :D, :U, 2011)
 title = "Figure 4: GVC Measures and their Correlation over time"
 p_fig4 = plot(p1, p2, p3, p4, layout=l, plot_title=title, plot_titlefontsize=10)
-savefig(p_fig3, "images/figure4.png") # export image to folder
+savefig(p_fig4, "images/figure4.png") # export image to folder
 
 
 # -------------- Figure 5 and 6 --------------------------------------------------------------------------------------------------------------------------------
@@ -68,8 +68,8 @@ plot!(corr_confint_FD_VA.year, corr_confint_FD_VA.beta, color=:blue, lw=2, label
 
 l = @layout [a ; b] # 2×2 layout
 title = "Figure 5: FU/GO and VA/GO over time"
-p_fig4 = plot(p1, p2, layout=l, plot_title=title, plot_titlefontsize=10)
-savefig(p_fig3, "images/figure5.png") # export image to folder
+p_fig5 = plot(p1, p2, layout=l, plot_title=title, plot_titlefontsize=10)
+savefig(p_fig5, "images/figure5.png") # export image to folder
 
 
 # figure 6
@@ -82,5 +82,5 @@ plot!(corr_confint_U_D.year, corr_confint_U_D.beta, color=:blue, lw=2, label=:no
 
 l = @layout [a ; b] # 2×2 layout
 title = "Figure 6: U and D over time"
-p_fig4 = plot(p1, p2, layout=l, plot_title=title, plot_titlefontsize=10)
-savefig(p_fig3, "images/figure6.png") # export image to folder
+p_fig6 = plot(p1, p2, layout=l, plot_title=title, plot_titlefontsize=10)
+savefig(p_fig6, "images/figure6.png") # export image to folder
