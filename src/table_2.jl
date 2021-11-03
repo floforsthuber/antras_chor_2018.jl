@@ -1,6 +1,6 @@
 # Script to replicate table 2 (regression from equation 11)
 
-using DataFrames, FixedEffectModels, RegressionTables, StatsBase, Statistics, LinearAlgebra, XLSX
+using DataFrames, FixedEffectModels, RegressionTables, StatsBase, Statistics, LinearAlgebra, XLSX, PrettyTables
 
 # -------------- Previous scripts -----------------------------------------------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ end
 
 XLSX.writetable("clean/t_tab2.xlsx", t_tab2, overwrite=true) # export table 
 
-# -------------- Table 2 --------------------------------------------------------------------------------------------------------------------------------
+# -------------- Table A1 --------------------------------------------------------------------------------------------------------------------------------
 
 # import data from local drive
 t_tab2 = DataFrame(XLSX.readtable("clean/t_tab2.xlsx", "Sheet1")...) # still a lot of NaN
@@ -69,11 +69,23 @@ transform!(t_tab2, [:FD_GO, :VA_GO, :U, :D] .=> ByRow(Float64) .=> [:FD_GO, :VA_
 # treat NaN = 0
 t_tab2_long = stack(t_tab2, Not([:year, :country, :sector]))
 transform!(t_tab2_long, :value => ByRow(x -> ifelse(isnan(x), 0.0, x)) => :value, renamecols=false) # set NaN = 0.0
+transform!(t_tab2_long, :sector => ByRow(x -> ifelse(x in goods_sectors, "goods", "services")) => :sector_dummy, renamecols=false) # sector dummy for grouping
 gdf = groupby(t_tab2_long, :variable)
 
-t_tabA1 = combine(gdf, :value => (x -> percentile(x, 10)) => :quantile_10, :value => (x -> percentile(x, 90)) => :quantile_90, :value => mean => :mean)
+t_tabA1_1 = combine(gdf, nrow, :value .=> [x -> percentile(x, 10), median, x -> percentile(x, 90), mean, std] .=> [:perc_10, :median, :perc_90, :mean, :std])
+t_tabA1_1[:, :sector_dummy] .= "all industries"
 
-#:value => median => :median, :value => nrow => :N, :value => std => :std) 
+gdf = groupby(t_tab2_long, [:variable, :sector_dummy])
+t_tabA1_2 = combine(gdf, nrow, :value .=> [x -> percentile(x, 10), median, x -> percentile(x, 90), mean, std] .=> [:perc_10, :median, :perc_90, :mean, :std])
+
+t_tabA1 = vcat(t_tabA1_2, t_tabA1_1) # combine tables
+sort!(t_tabA1, [:variable, :sector_dummy])
+
+open("images/summary_stats_country_industry_GVC.txt", "w") do f
+    pretty_table(f,t_tabA1; backend = Val(:html), nosubheader=true, standalone=false) # only prints html code for table itself
+end
+
+# -------------- Table 2 --------------------------------------------------------------------------------------------------------------------------------
 
 # use package: FixedEffectModels
 
@@ -112,10 +124,4 @@ RegressionTables.regtable(rr_FD_GO_1, rr_FD_GO_2, rr_VA_GO_1, rr_VA_GO_2, rr_U_1
 
 # regressions coincide very well, possible source of difference is the additional 300 observations of Antras and Chor (2018)
 # have for VA, U, D (i.e. must have fewer NaN, but how?) => set NaN = 0
-
-
-
-
-
-
 
