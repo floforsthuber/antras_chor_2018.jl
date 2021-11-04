@@ -9,6 +9,8 @@ be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_29
 The replication uses the STATA format available from WIOD [here](http://www.wiod.org/database/wiots13).<br/>
 My own files are available via Google Drive.
 
+All mistakes are my own.
+
 # Results
 
 ***Corresponds to figure 2 on page 13:***
@@ -228,7 +230,8 @@ My own files are available via Google Drive.
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table3.png)
 <br/>
 
+***Corresponds to figure 7 on page 22:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table3.png)
+<br/>
 
-# Final notes
-
-All mistakes are my own.
