@@ -232,6 +232,15 @@ All mistakes are my own.
 
 ***Corresponds to figure 7 on page 22:***
 <br/>
-![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table3.png)
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure7.png)
 <br/>
 
+***Corresponds to table 4 on page 23:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table4.png)
+<br/>
+
+***Corresponds to table 5 on page 23:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table5.png)
+<br/>

@@ -55,8 +55,8 @@ function country_sector_level_head_reis_index(df::DataFrame, year::Int64, output
     replace!(FD_corrected, NaN => 0.0)
 
     # footnote 22 on page 21: substitute 1e-18 for any zero entries otherwise trade costs explode to infinity!
-    ID = replace!(x -> x <= 0.0 ? 1e-18 : x, ID_corrected)
-    FD = replace!(x -> x <= 0.0 ? 1e-18 : x, FD_corrected)
+    ID = replace!(x -> x <= 0.0 ? 1e-18 : x, ID_corrected) # N*S×N*S
+    FD = replace!(x -> x <= 0.0 ? 1e-18 : x, FD_corrected) # N*S×N
 
     # claculate Head-Reis index
     θ = 5 # assumption on trade elasticity
@@ -74,8 +74,49 @@ t_tab5 = DataFrame(year=Int[], row_country=String[], row_sector=Int64[], col_cou
 
 for i in years
     append!(t_tab4, country_sector_level_head_reis_index(df, i, "ID"))
-    append!(t_tab5, country_sector_level_head_reis_index(df, i, "ID"))
+    append!(t_tab5, country_sector_level_head_reis_index(df, i, "FD"))
 end
 
 CSV.write("clean/t_tab4.csv", t_tab4) # use CSV since XLSX cannot store that many rows
 CSV.write("clean/t_tab5.csv", t_tab5)
+
+# -------------- Table 4 -----------------------------------------------------------------------------------------------------------------------------
+
+t_tab4 = CSV.read("clean/t_tab4.csv", DataFrame) # also imports types correctly!
+t_tab5 = CSV.read("clean/t_tab4.csv", DataFrame) # also imports types correctly!
+
+function reg_tab_4_5(df::DataFrame)
+
+    df[:, :row_origin_destination] .= df[:, :row_country] .* "_" .* string.(df[:, :row_sector]) # for standard error clustering
+    df[:, :col_origin_destination] .= df[:, :row_country] .* "_" .* string.(df[:, :row_sector]) # for standard error clustering
+    df[:, :origin_destination] .= df[:, :row_origin_destination] .* "___" .* df[:, :col_origin_destination] # for fixed effects
+    transform!(df, :row_sector => ByRow(x -> x in goods_sectors ? 1 : 0) => :row_sector_dummy) # dummy for *reporting* sector, "goods" = 1
+
+    df_goods = subset(df, :row_sector_dummy => ByRow(x -> x==1)) # only goods sectors
+    df_services = subset(df, :row_sector_dummy => ByRow(x -> x!=1)) # only service sectors
+
+    regression = Dict{String,Any}() # initializing dictionary to store regression results (Any could be replaced by type FixedEffectModel)
+    df_names = ["all", "goods", "services"] # names of dictionary "keys"
+    df_array = [df, df_goods, df_services] # names of DataFrames used
+
+    for i in 1:length(df_names)
+        push!(regression, "reg_1_" * df_names[i] => 
+        FixedEffectModels.reg(df_array[i], @formula(log(value) ~ year + fe(origin_destination)), Vcov.cluster(:row_origin_destination, :col_origin_destination, :year)))
+        
+        push!(regression, "reg_2_" * df_names[i] => 
+        FixedEffectModels.reg(df_array[i], @formula(log(value) ~ year + fe(origin_destination)), Vcov.cluster(:row_origin_destination, :col_origin_destination, :year),
+            contrasts = Dict(:year => DummyCoding(base=1995)))) # treat years as dummies
+    end
+
+    reg = RegressionTables.regtable(regression["reg_1_all"], regression["reg_2_all"], regression["reg_1_goods"], regression["reg_2_goods"],
+        regression["reg_1_services"], regression["reg_2_services"];
+        renderSettings = asciiOutput(), regression_statistics=[:nobs, :r2], print_fe_section=true, estimformat="%0.4f") # output on the console
+
+    return reg
+
+end
+
+reg_tab_4_5(t_tab4)
+
+reg_tab_4_5(t_tab5) # is not correct!
+# should input should be a N*S×N by matrix not N*S×N*S
