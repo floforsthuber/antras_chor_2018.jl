@@ -7,16 +7,19 @@ The original paper *On the Measurement of Upstreamness and Downstreamness in Glo
 be accessed [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_29dec2017_withtables.pdf), with slides for the presentation of the paper [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_slides_dec17.pdf) and the authors' files for replication [here](https://scholar.harvard.edu/files/antras/files/upstream_ac_replication.zip).<br/>
 
 The replication uses the STATA format available from WIOD [here](http://www.wiod.org/database/wiots13).<br/>
-My own files are available via Google Drive.
+My own files are available via my Google Drive [here](https://drive.google.com/drive/folders/1xTcZLRCvakpyT1Eu6GjNYu-sZziu_wwL?usp=sharing).
 
 All mistakes are my own.
 
 # Comments
 
-My results coincide very well with the results reported in the paper. There are some differences in the number of observations used in the regressions, I attribute
+My results coincide very well with the results reported in the paper. There are some differences due to the number of observations used in the regressions, I attribute
 this to a slightly different treatment of *NaNs* and *zeros*, nevertheless, the results are qualitatively the same and quantitatively very close.
 
 Figure 8 is missing and and table 5 is inaccurate (as indicated below), due to a faulty calculation of the Head-Reis Index for the final demand.
+
+Furthermore, the model scetched out in chapter five and the counterfactuals form chapter six are left for a later stage as I need to better understand 
+the methods to do so first.
 
 # Results
 
