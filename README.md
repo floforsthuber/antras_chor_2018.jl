@@ -11,6 +11,13 @@ My own files are available via Google Drive.
 
 All mistakes are my own.
 
+# Comments
+
+My results coincide very well with the results reported in the paper. There are some differences in the number of observations used in the regressions, I attribute
+this to a slightly different treatment of *NaNs* and *zeros*, nevertheless, the results are qualitatively the same and quantitatively very close.
+
+Figure 8 is missing and and table 5 is inaccurate (as indicated below), due to a faulty calculation of the Head-Reis Index for the final demand.
+
 # Results
 
 ***Corresponds to figure 2 on page 13:***
@@ -240,10 +247,20 @@ All mistakes are my own.
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table4.png)
 <br/>
 
-***Corresponds to table 5 on page 23:***
+***Corresponds to table 5 on page 23:***<br/>
 ***WRONG! = surprisingly similar results***
 <br/>
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table5.png)
+<br/>
+
+***Corresponds to figure 9 on page 26:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure9.png)
+<br/>
+
+***Corresponds to figure 10 on page 26:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/figure10.png)
 <br/>
 
 ***Corresponds to table 6 on page 27:***
