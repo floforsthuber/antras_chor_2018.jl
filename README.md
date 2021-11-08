@@ -241,6 +241,17 @@ All mistakes are my own.
 <br/>
 
 ***Corresponds to table 5 on page 23:***
+***WRONG! = surprisingly similar results***
 <br/>
 ![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table5.png)
+<br/>
+
+***Corresponds to table 6 on page 27:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table6.png)
+<br/>
+
+***Corresponds to table 7 on page 27:***
+<br/>
+![](https://raw.githubusercontent.com/forsthuber92/antras_chor_2018.jl/main/images/table7.png)
 <br/>

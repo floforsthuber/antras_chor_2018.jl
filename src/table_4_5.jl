@@ -118,5 +118,9 @@ end
 
 reg_tab_4_5(t_tab4)
 
+
+# -------------- Table 5 -----------------------------------------------------------------------------------------------------------------------------
+
 reg_tab_4_5(t_tab5) # is not correct!
 # should input should be a N*S×N by matrix not N*S×N*S
+# results are still suprisingly close
