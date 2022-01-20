@@ -2,7 +2,7 @@
 
 using DataFrames, StatFiles
 
-# -------------- loading data -----------------------------------------------------------------------------------------------------------------------
+# ------------- loading data -----------------------------------------------------------------------------------------------------------------------
 
 df = DataFrame(load("raw/wiot_full.dta")) # entire 2013 version of WIOD (1995-2011) in long format (Stata .dta file)
 # can be obtained from http://www.wiod.org/database/wiots13 under "WIOT tables in STATA format"
